@@ -1,0 +1,22 @@
+## 1.0.0
+
+- Initial release of the **DLMS/COSEM** library for Dart.
+- **Transport**:
+  - `TcpTransport`: Connect via TCP/IP.
+  - `HdlcTransport`: Connect via Serial/Optical (HDLC) with SNRM/UA handshake.
+- **Client**:
+  - `DlmsClient`: High-level client for managing connections and requests.
+  - Support for `GET`, `SET`, `ACTION` (Method Invocation).
+  - Support for **Block Transfer** (large file reassembly).
+  - Support for **Selective Access** (Range/Entry descriptors).
+  - Support for `GetRequestWithList` and `SetRequestWithList` (Batch operations).
+- **Interface Classes**:
+  - `CosemClock` (Class 8).
+  - `CosemRegister` (Class 3).
+  - `CosemProfileGeneric` (Class 7).
+  - `CosemDisconnectControl` (Class 70).
+- **Security**:
+  - Low Level Security (LLS).
+  - High Level Security (HLS) structures (Mechanism OID, Challenge/Response).
+- **Encoding**:
+  - Optimized `AxdrReader` and `AxdrWriter` for A-XDR encoding.
