@@ -1,3 +1,8 @@
+## 1.0.1
+
+- **Fix**: Applied `dart format` to all files to comply with standard Dart style.
+- **Chore**: Added LICENSE file.
+
 ## 1.0.0
 
 - Initial release of the **DLMS/COSEM** library for Dart.
