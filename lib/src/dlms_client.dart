@@ -29,21 +29,18 @@ class DlmsClient {
   bool get isConnected => _isConnected;
 
   /// Establishes a DLMS application association.
-  /// 
+  ///
   /// [password] is used for LLS (Low Level Security).
   /// [hls] is used for HLS (High Level Security) 4-pass handshake.
-  /// 
+  ///
   /// If [hls] is provided, [password] is ignored (or used inside the HLS mechanism).
-  Future<bool> connect({
-    String? password,
-    HlsMechanism? hls,
-  }) async {
+  Future<bool> connect({String? password, HlsMechanism? hls}) async {
     await transport.connect();
 
     // Pass 1: Send AARQ
     Uint8List? cToS;
     List<int>? mechName;
-    
+
     if (hls != null) {
       cToS = hls.generateChallenge();
       mechName = hls.mechanismName;
@@ -54,10 +51,10 @@ class DlmsClient {
       callingAuthenticationValue: cToS,
       mechanismName: mechName,
     );
-    
+
     final responseBytes = await transport.sendRequest(aarq.toBytes());
     final aare = AarePdu(responseBytes);
-    
+
     if (!aare.isAccepted) {
       // Failed at Association level
       _isConnected = false;
@@ -71,12 +68,14 @@ class DlmsClient {
       try {
         // Pass 2 was receiving AARE. Extract StoC.
         // AARE 'authentication-value' contains the StoC.
-        // We need to parse it from AARE. 
-        // Currently AarePdu doesn't expose authenticationValue explicitly, 
+        // We need to parse it from AARE.
+        // Currently AarePdu doesn't expose authenticationValue explicitly,
         // we need to update AarePdu to parse it.
         final sToC = aare.authenticationValue;
         if (sToC == null) {
-          throw Exception('HLS Error: Server did not return a challenge (StoC)');
+          throw Exception(
+            'HLS Error: Server did not return a challenge (StoC)',
+          );
         }
 
         // Pass 3: Verify Server
@@ -84,33 +83,32 @@ class DlmsClient {
 
         // Pass 4: Send Reply
         final responseValue = hls.calculateResponse(sToC, cToS!);
-        
+
         // Invoke Method 1 (Reply_to_HLS_authentication) on Association LN
         // Current Association LN is usually 0.0.40.0.0.255
-        // But the AARQ context might define it differently. 
+        // But the AARQ context might define it differently.
         // Standard Association SN is 0.0.40.0.0.255 (Class 15).
-        
+
         // We assume Association LN (Class 15) instance 0.0.40.0.0.255
         final assocObis = ObisCode(0, 0, 40, 0, 0, 255);
-        
+
         // The data is usually:
         // action-request-normal -> method-invocation-parameters -> OctetString (the response)
-        // or just the raw bytes? 
+        // or just the raw bytes?
         // Method 1 of Association LN takes "OctetString" as data.
         final params = DlmsValue(responseValue, 9); // OctetString
-        
+
         await action(15, assocObis, 1, params: params);
-        
+
         // Action returns success/fail. If action() didn't throw, we are good.
         // But wait, action() returns return-parameters. The RESULT is checked inside action().
-        
       } catch (e) {
         _isConnected = false;
         await transport.disconnect();
         rethrow;
       }
     }
-    
+
     return _isConnected;
   }
 
@@ -121,7 +119,12 @@ class DlmsClient {
   }
 
   /// Reads a COSEM attribute, automatically handling block transfers if necessary.
-  Future<DlmsValue> read(int classId, ObisCode obis, int attributeId, {AccessSelector? selector}) async {
+  Future<DlmsValue> read(
+    int classId,
+    ObisCode obis,
+    int attributeId, {
+    AccessSelector? selector,
+  }) async {
     if (!_isConnected) throw StateError('Not connected to meter');
 
     final request = GetRequestPdu.normal(
@@ -132,7 +135,7 @@ class DlmsClient {
     );
 
     Uint8List responseBytes = await transport.sendRequest(request.toBytes());
-    
+
     // Check for ExceptionResponse
     if (responseBytes.isNotEmpty && responseBytes[0] == 0xD8) {
       final ex = ExceptionResponsePdu.fromBytes(responseBytes);
@@ -151,21 +154,23 @@ class DlmsClient {
 
     return response.result!;
   }
-  
+
   /// Reads multiple attributes in a single request (GetWithList).
-  Future<List<DlmsValue>> readList(List<CosemAttributeDescriptorWithSelection> items) async {
-     if (!_isConnected) throw StateError('Not connected to meter');
-     
-     final request = GetRequestPdu.withList(listDescriptors: items);
-     
-     Uint8List responseBytes = await transport.sendRequest(request.toBytes());
-     GetResponsePdu response = GetResponsePdu.fromBytes(responseBytes);
-     
-     if (response.responseType != 0x03 || response.results == null) {
-       throw Exception('Unexpected response type for readList');
-     }
-     
-     return response.results!;
+  Future<List<DlmsValue>> readList(
+    List<CosemAttributeDescriptorWithSelection> items,
+  ) async {
+    if (!_isConnected) throw StateError('Not connected to meter');
+
+    final request = GetRequestPdu.withList(listDescriptors: items);
+
+    Uint8List responseBytes = await transport.sendRequest(request.toBytes());
+    GetResponsePdu response = GetResponsePdu.fromBytes(responseBytes);
+
+    if (response.responseType != 0x03 || response.results == null) {
+      throw Exception('Unexpected response type for readList');
+    }
+
+    return response.results!;
   }
 
   /// Handles multi-block reassembly.
@@ -199,7 +204,12 @@ class DlmsClient {
   }
 
   /// Writes a COSEM attribute.
-  Future<void> write(int classId, ObisCode obis, int attributeId, DlmsValue value) async {
+  Future<void> write(
+    int classId,
+    ObisCode obis,
+    int attributeId,
+    DlmsValue value,
+  ) async {
     if (!_isConnected) throw StateError('Not connected to meter');
 
     final request = SetRequestPdu.normal(
@@ -218,23 +228,34 @@ class DlmsClient {
   }
 
   /// Writes multiple attributes in a single request (SetWithList).
-  Future<List<int>> writeList(List<CosemAttributeDescriptorWithSelection> items, List<DlmsValue> values) async {
-     if (!_isConnected) throw StateError('Not connected to meter');
-     
-     final request = SetRequestPdu.withList(listDescriptors: items, listValues: values);
-     
-     final responseBytes = await transport.sendRequest(request.toBytes());
-     final response = SetResponsePdu.fromBytes(responseBytes);
-     
-     if (response.responseType != 0x03 || response.results == null) {
-       throw Exception('Unexpected response type for writeList');
-     }
-     
-     return response.results!;
+  Future<List<int>> writeList(
+    List<CosemAttributeDescriptorWithSelection> items,
+    List<DlmsValue> values,
+  ) async {
+    if (!_isConnected) throw StateError('Not connected to meter');
+
+    final request = SetRequestPdu.withList(
+      listDescriptors: items,
+      listValues: values,
+    );
+
+    final responseBytes = await transport.sendRequest(request.toBytes());
+    final response = SetResponsePdu.fromBytes(responseBytes);
+
+    if (response.responseType != 0x03 || response.results == null) {
+      throw Exception('Unexpected response type for writeList');
+    }
+
+    return response.results!;
   }
 
   /// Invokes a COSEM method (Action).
-  Future<DlmsValue?> action(int classId, ObisCode obis, int methodId, {DlmsValue? params}) async {
+  Future<DlmsValue?> action(
+    int classId,
+    ObisCode obis,
+    int methodId, {
+    DlmsValue? params,
+  }) async {
     if (!_isConnected) throw StateError('Not connected to meter');
 
     final request = ActionRequestPdu(
@@ -250,7 +271,7 @@ class DlmsClient {
     if (response.result != 0) {
       throw Exception('DLMS Action Error: Result Code ${response.result}');
     }
-    
+
     return response.returnParameters;
   }
 }

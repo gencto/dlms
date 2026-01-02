@@ -14,10 +14,10 @@ class ExceptionResponsePdu {
     if (tag != 0xD8) {
       throw FormatException('Invalid ExceptionResponse tag: $tag');
     }
-    
+
     final state = reader.readUint8();
     final service = reader.readUint8();
-    
+
     return ExceptionResponsePdu(stateError: state, serviceError: service);
   }
 
@@ -28,23 +28,35 @@ class ExceptionResponsePdu {
 
   String get _stateString {
     switch (stateError) {
-      case 0: return 'Service Allowed';
-      case 1: return 'Service Not Allowed';
-      case 2: return 'Other Reason';
-      default: return 'Unknown($stateError)';
+      case 0:
+        return 'Service Allowed';
+      case 1:
+        return 'Service Not Allowed';
+      case 2:
+        return 'Other Reason';
+      default:
+        return 'Unknown($stateError)';
     }
   }
 
   String get _serviceString {
     switch (serviceError) {
-      case 0: return 'Operation Not Possible';
-      case 1: return 'Service Not Supported';
-      case 2: return 'Other Reason';
-      case 3: return 'PDU Too Long';
-      case 4: return 'Deciphering Error';
-      case 5: return 'Invocation Counter Error';
-      case 6: return 'Block Number Error';
-      default: return 'Unknown($serviceError)';
+      case 0:
+        return 'Operation Not Possible';
+      case 1:
+        return 'Service Not Supported';
+      case 2:
+        return 'Other Reason';
+      case 3:
+        return 'PDU Too Long';
+      case 4:
+        return 'Deciphering Error';
+      case 5:
+        return 'Invocation Counter Error';
+      case 6:
+        return 'Block Number Error';
+      default:
+        return 'Unknown($serviceError)';
     }
   }
 }

@@ -26,18 +26,18 @@ void main() {
       // 7E A0 0A 00 00 00 03 21 73 [CRC] 7E
       // (Wait, my frame encoder uses 4 byte dest, 1 byte src)
       // Dest: 00 00 00 03 -> 00 00 00 07? DLMS address encoding is tricky.
-      
+
       // Let's use the HdlcFrame class itself to generate the mock response
       final uaFrame = const HdlcFrame(
         destAddress: 0x21,
         srcAddress: 0x03,
         control: 0x73,
       ).toBytes();
-      
+
       controller.add(uaFrame);
 
       await connectFuture;
-      
+
       expect(outBytes.length, 1);
       expect(outBytes[0][bytesToControlOffset(outBytes[0])], 0x93); // Sent SNRM
     });
@@ -45,6 +45,6 @@ void main() {
 }
 
 int bytesToControlOffset(Uint8List frame) {
-    // 7E (1) + Format (2) + Dest(4) + Src(1) = 8
-    return 8;
+  // 7E (1) + Format (2) + Dest(4) + Src(1) = 8
+  return 8;
 }

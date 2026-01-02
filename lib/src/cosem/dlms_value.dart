@@ -16,7 +16,7 @@ class DlmsValue {
   /// Recursively encodes this [DlmsValue] using an [AxdrWriter].
   void encode(AxdrWriter writer) {
     writer.writeUint8(type);
-    
+
     switch (type) {
       case 0: // null-data
         break;

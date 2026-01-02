@@ -96,16 +96,15 @@ void main() {
 
       try {
         await client.connect();
-        
+
         final profileObis = ObisCode(1, 0, 99, 1, 0, 255);
         final profile = CosemProfileGeneric(client, profileObis);
-        
+
         final buffer = await profile.getBuffer();
-        
+
         expect(buffer.length, 50); // Simulator generates 50 rows
         expect(buffer[0][1], 0); // Row 0 value
         expect(buffer[49][1], 490); // Row 49 value (49 * 10)
-        
       } finally {
         await client.disconnect();
       }

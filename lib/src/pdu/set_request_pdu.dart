@@ -9,11 +9,11 @@ import 'get_request_pdu.dart'; // For CosemAttributeDescriptorWithSelection
 class SetRequestPdu {
   final int requestType;
   final int invokeIdAndPriority;
-  
+
   // Normal (0x01)
   final CosemAttributeDescriptorWithSelection? normalDescriptor;
   final DlmsValue? value;
-  
+
   // WithList (0x03)
   final List<CosemAttributeDescriptorWithSelection>? listDescriptors;
   final List<DlmsValue>? listValues;
@@ -29,8 +29,12 @@ class SetRequestPdu {
        listDescriptors = null,
        listValues = null,
        normalDescriptor = CosemAttributeDescriptorWithSelection(
-         descriptor: CosemAttributeDescriptor(classId: classId, instanceId: instanceId, attributeId: attributeId),
-         accessSelector: accessSelector
+         descriptor: CosemAttributeDescriptor(
+           classId: classId,
+           instanceId: instanceId,
+           attributeId: attributeId,
+         ),
+         accessSelector: accessSelector,
        );
 
   SetRequestPdu.withList({
@@ -49,19 +53,19 @@ class SetRequestPdu {
     writer.writeUint8(invokeIdAndPriority);
 
     if (requestType == 0x01) {
-       normalDescriptor!.encode(writer);
-       value!.encode(writer);
+      normalDescriptor!.encode(writer);
+      value!.encode(writer);
     } else if (requestType == 0x03) {
-       writer.writeLength(listDescriptors!.length);
-       for (final desc in listDescriptors!) {
-         desc.encode(writer);
-       }
-       writer.writeLength(listValues!.length);
-       for (final val in listValues!) {
-         val.encode(writer);
-       }
+      writer.writeLength(listDescriptors!.length);
+      for (final desc in listDescriptors!) {
+        desc.encode(writer);
+      }
+      writer.writeLength(listValues!.length);
+      for (final val in listValues!) {
+        val.encode(writer);
+      }
     }
-    
+
     return writer.toBytes();
   }
 }

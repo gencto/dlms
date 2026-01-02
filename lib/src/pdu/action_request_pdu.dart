@@ -31,12 +31,12 @@ class ActionRequestPdu {
 
     if (requestType == 0x01) {
       writer.writeUint8(invokeIdAndPriority);
-      
+
       // CosemMethodDescriptor
       writer.writeUint16(classId);
       writer.writeOctetString(instanceId.toBytes());
       writer.writeInt8(methodId);
-      
+
       // MethodInvocationParameters (Optional)
       if (parameters == null) {
         writer.writeUint8(0x00); // Not present
@@ -45,7 +45,7 @@ class ActionRequestPdu {
         parameters!.encode(writer);
       }
     }
-    
+
     return writer.toBytes();
   }
 }

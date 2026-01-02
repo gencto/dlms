@@ -24,27 +24,29 @@ class SetResponsePdu {
 
     final responseType = reader.readUint8();
     final invokeId = reader.readUint8();
-    
-    if (responseType == 0x01) { // SetResponseNormal
-       final result = reader.readUint8(); // Result code
-       return SetResponsePdu(
-         responseType: responseType,
-         invokeIdAndPriority: invokeId,
-         result: result,
-       );
-    } else if (responseType == 0x03) { // SetResponseWithList
-       final count = _readLength(reader);
-       final list = <int>[];
-       for(int i=0; i<count; i++) {
-         list.add(reader.readUint8());
-       }
-       return SetResponsePdu(
-         responseType: responseType,
-         invokeIdAndPriority: invokeId,
-         results: list,
-       );
+
+    if (responseType == 0x01) {
+      // SetResponseNormal
+      final result = reader.readUint8(); // Result code
+      return SetResponsePdu(
+        responseType: responseType,
+        invokeIdAndPriority: invokeId,
+        result: result,
+      );
+    } else if (responseType == 0x03) {
+      // SetResponseWithList
+      final count = _readLength(reader);
+      final list = <int>[];
+      for (int i = 0; i < count; i++) {
+        list.add(reader.readUint8());
+      }
+      return SetResponsePdu(
+        responseType: responseType,
+        invokeIdAndPriority: invokeId,
+        results: list,
+      );
     }
-    
+
     throw UnimplementedError('SetResponse type $responseType not implemented');
   }
 

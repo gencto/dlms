@@ -19,7 +19,7 @@ void main() {
       final bytes = Uint8List.fromList([2, 2, 10, 2, 72, 105, 3, 1]);
       final reader = AxdrReader(bytes);
       final val = DlmsValue.decode(reader);
-      
+
       expect(val.type, 2);
       expect(val.value, isA<List>());
       final list = val.value as List<DlmsValue>;
@@ -33,7 +33,7 @@ void main() {
       // C4 01 81 00 (choice data) [17 50] (Unsigned 80)
       final bytes = Uint8List.fromList([0xC4, 0x01, 0x81, 0x00, 17, 80]);
       final pdu = GetResponsePdu.fromBytes(bytes);
-      
+
       expect(pdu.responseType, 1);
       expect(pdu.result?.value, 80);
       expect(pdu.resultError, isNull);
@@ -43,7 +43,7 @@ void main() {
       // C4 01 81 01 (choice error) 05 (access-violation)
       final bytes = Uint8List.fromList([0xC4, 0x01, 0x81, 0x01, 0x05]);
       final pdu = GetResponsePdu.fromBytes(bytes);
-      
+
       expect(pdu.resultError, 5);
       expect(pdu.result, isNull);
     });

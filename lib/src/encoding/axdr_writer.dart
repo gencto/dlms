@@ -12,8 +12,8 @@ class AxdrWriter {
 
   /// Creates a writer with an initial capacity (default 256 bytes).
   AxdrWriter({int initialCapacity = 256})
-      : _buffer = Uint8List(initialCapacity),
-        _view = ByteData(0) {
+    : _buffer = Uint8List(initialCapacity),
+      _view = ByteData(0) {
     _view = ByteData.view(_buffer.buffer);
   }
 
@@ -30,9 +30,9 @@ class AxdrWriter {
 
   void writeBoolean(bool value) {
     _ensureCapacity(1);
-    // DLMS Blue Book: Boolean is an OCTET. 0x00 is false, 0xFF is true (often). 
-    // However, 0x01 is also common in implementations. 
-    // We will stick to 0x01 for TRUE to be safe with most parsers, 
+    // DLMS Blue Book: Boolean is an OCTET. 0x00 is false, 0xFF is true (often).
+    // However, 0x01 is also common in implementations.
+    // We will stick to 0x01 for TRUE to be safe with most parsers,
     // but strict DLMS might prefer 0xFF. For now using 0x01.
     _view.setUint8(_offset, value ? 0x01 : 0x00);
     _offset += 1;
@@ -95,7 +95,7 @@ class AxdrWriter {
   }
 
   void writeVisibleString(String value) {
-    // VisibleString is ASCII. 
+    // VisibleString is ASCII.
     // Ensure we encode only valid chars or just get bytes.
     final bytes = ascii.encode(value);
     writeOctetString(bytes);

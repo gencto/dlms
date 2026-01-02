@@ -96,12 +96,16 @@ class AxdrReader {
     _checkBounds(length);
     // Create a copy to ensure ownership, or use sublistView for performance if immutability is guaranteed.
     // Here we use sublistView for max performance, assuming reader buffer isn't mutated externally.
-    final bytes = Uint8List.view(_view.buffer, _view.offsetInBytes + _offset, length); 
+    final bytes = Uint8List.view(
+      _view.buffer,
+      _view.offsetInBytes + _offset,
+      length,
+    );
     _offset += length;
     // We return a copy of the list to prevent external modification affecting the buffer,
-    // or if the underlying buffer is reused. 
+    // or if the underlying buffer is reused.
     // Ideally for pure speed we return the view, but safety usually dictates a copy for OctetStrings.
-    return Uint8List.fromList(bytes); 
+    return Uint8List.fromList(bytes);
   }
 
   /// Reads a VisibleString (ASCII).
@@ -129,7 +133,9 @@ class AxdrReader {
 
   void _checkBounds(int count) {
     if (_offset + count > _view.lengthInBytes) {
-      throw RangeError('Not enough bytes to read. Needed $count, available $remaining');
+      throw RangeError(
+        'Not enough bytes to read. Needed $count, available $remaining',
+      );
     }
   }
 }

@@ -20,36 +20,41 @@ class GetResponsePdu {
 
   factory GetResponsePdu.fromBytes(Uint8List data) {
     final reader = AxdrReader(data);
-    
+
     final tag = reader.readUint8();
     if (tag != 0xC4) {
       throw FormatException('Invalid GetResponse tag: $tag');
     }
-    
+
     final responseType = reader.readUint8();
     final invokeId = reader.readUint8();
-    
-    if (responseType == 0x01) { // GetResponseNormal
+
+    if (responseType == 0x01) {
+      // GetResponseNormal
       final resultChoice = reader.readUint8();
-      if (resultChoice == 0x00) { // data
+      if (resultChoice == 0x00) {
+        // data
         return GetResponsePdu(
           responseType: responseType,
           invokeIdAndPriority: invokeId,
           result: DlmsValue.decode(reader),
         );
-      } else { // data-access-result (enum)
+      } else {
+        // data-access-result (enum)
         return GetResponsePdu(
           responseType: responseType,
           invokeIdAndPriority: invokeId,
           resultError: reader.readUint8(),
         );
       }
-    } else if (responseType == 0x02) { // GetResponseWithDataBlock
+    } else if (responseType == 0x02) {
+      // GetResponseWithDataBlock
       final lastBlock = reader.readUint8() != 0;
       final blockNumber = reader.readUint32();
       final resultChoice = reader.readUint8();
-      
-      if (resultChoice == 0x00) { // raw-data
+
+      if (resultChoice == 0x00) {
+        // raw-data
         final rawData = reader.readOctetString();
         return GetResponseWithBlock(
           responseType: responseType,
@@ -65,26 +70,29 @@ class GetResponsePdu {
           resultError: reader.readUint8(),
         );
       }
-    } else if (responseType == 0x03) { // GetResponseWithList
+    } else if (responseType == 0x03) {
+      // GetResponseWithList
       final count = _readLength(reader);
       final list = <DlmsValue>[];
       for (var i = 0; i < count; i++) {
         final choice = reader.readUint8();
-        if (choice == 0) { // Data
+        if (choice == 0) {
+          // Data
           list.add(DlmsValue.decode(reader));
-        } else { // Access Result
-          // We wrap errors in a special DlmsValue type or null? 
+        } else {
+          // Access Result
+          // We wrap errors in a special DlmsValue type or null?
           // Let's use a convention: Type -1 is error.
           list.add(DlmsValue(reader.readUint8(), -1));
         }
       }
       return GetResponsePdu(
-        responseType: responseType, 
+        responseType: responseType,
         invokeIdAndPriority: invokeId,
         results: list,
       );
     }
-    
+
     throw UnimplementedError('GetResponse type $responseType not implemented');
   }
 

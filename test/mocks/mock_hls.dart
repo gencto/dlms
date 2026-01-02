@@ -24,7 +24,10 @@ class MockHlsMechanism implements HlsMechanism {
   }
 
   @override
-  Uint8List calculateResponse(Uint8List serverChallenge, Uint8List clientChallenge) {
+  Uint8List calculateResponse(
+    Uint8List serverChallenge,
+    Uint8List clientChallenge,
+  ) {
     // Dummy response: 0xFF 0xFF ...
     return Uint8List.fromList(List.filled(8, 0xFF));
   }

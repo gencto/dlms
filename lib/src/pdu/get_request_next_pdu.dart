@@ -15,12 +15,12 @@ class GetRequestNextPdu {
 
   Uint8List toBytes() {
     final writer = AxdrWriter();
-    
+
     writer.writeUint8(0xC0); // GetRequest Tag
     writer.writeUint8(0x02); // GetRequestNext
     writer.writeUint8(invokeIdAndPriority);
     writer.writeUint32(blockNumber);
-    
+
     return writer.toBytes();
   }
 }

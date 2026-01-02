@@ -29,7 +29,7 @@ class CosemClock extends CosemObject {
   DateTime _parseCosemDateTime(List<int> bytes) {
     // Format: Year(2), Month(1), Day(1), DayOfWeek(1), Hour(1), Min(1), Sec(1), Hundredths(1), Deviation(2), Status(1)
     if (bytes.length < 12) return DateTime.now(); // Fallback
-    
+
     int year = (bytes[0] << 8) | bytes[1];
     int month = bytes[2];
     int day = bytes[3];
@@ -40,7 +40,7 @@ class CosemClock extends CosemObject {
     // bytes[8] is Hundredths
     // bytes[9,10] is Deviation
     // bytes[11] is Status
-    
+
     return DateTime(year, month, day, hour, minute, second);
   }
 
@@ -50,7 +50,9 @@ class CosemClock extends CosemObject {
     b.add(dt.year & 0xFF);
     b.add(dt.month);
     b.add(dt.day);
-    b.add(dt.weekday == 7 ? 0 : dt.weekday); // 1=Mon, 7=Sun (Dart) vs DLMS usually 1=Mon, 7=Sun. 0 is unspecified?
+    b.add(
+      dt.weekday == 7 ? 0 : dt.weekday,
+    ); // 1=Mon, 7=Sun (Dart) vs DLMS usually 1=Mon, 7=Sun. 0 is unspecified?
     b.add(dt.hour);
     b.add(dt.minute);
     b.add(dt.second);

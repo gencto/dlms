@@ -17,7 +17,8 @@ class CosemRegister extends CosemObject {
   /// Returns a record (scalar, unit).
   Future<({int scalar, int unit})> get scalerUnit async {
     final val = await readAttribute(3);
-    if (val.type == 2) { // Structure
+    if (val.type == 2) {
+      // Structure
       final list = val.value as List<DlmsValue>;
       if (list.length >= 2) {
         return (scalar: list[0].value as int, unit: list[1].value as int);

@@ -25,13 +25,13 @@ void main() {
       // Length 2 is < 0x80, so encoded as 0x02
       expect(writer.toBytes(), equals([0x02, 0xCA, 0xFE]));
     });
-    
+
     test('writes visible string correctly', () {
       final writer = AxdrWriter();
       writer.writeVisibleString('DLMS');
       expect(writer.toBytes(), equals([0x04, 0x44, 0x4C, 0x4D, 0x53]));
     });
-    
+
     test('expands buffer automatically', () {
       final writer = AxdrWriter(initialCapacity: 1);
       writer.writeUint16(0x1234);
@@ -56,9 +56,11 @@ void main() {
       final reader = AxdrReader(Uint8List.fromList([0x02, 0xCA, 0xFE]));
       expect(reader.readOctetString(), equals([0xCA, 0xFE]));
     });
-    
-     test('reads visible string', () {
-      final reader = AxdrReader(Uint8List.fromList([0x04, 0x44, 0x4C, 0x4D, 0x53]));
+
+    test('reads visible string', () {
+      final reader = AxdrReader(
+        Uint8List.fromList([0x04, 0x44, 0x4C, 0x4D, 0x53]),
+      );
       expect(reader.readVisibleString(), equals('DLMS'));
     });
 

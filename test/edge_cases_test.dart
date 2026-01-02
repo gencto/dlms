@@ -22,15 +22,21 @@ void main() {
     test('ObisCode handles invalid byte length', () {
       expect(() => ObisCode.fromBytes([1, 2, 3]), throwsFormatException);
     });
-    
+
     test('AarePdu handles garbage data', () {
-      expect(() => AarePdu(Uint8List.fromList([0x00, 0x01])), throwsFormatException);
+      expect(
+        () => AarePdu(Uint8List.fromList([0x00, 0x01])),
+        throwsFormatException,
+      );
     });
-    
+
     test('AarePdu handles truncated data', () {
       // 61 05 A2 03 ... missing bytes
       final truncated = Uint8List.fromList([0x61, 0x05, 0xA2, 0x03]);
-      expect(() => AarePdu(truncated), throwsA(anyOf(isA<RangeError>(), isA<FormatException>())));
+      expect(
+        () => AarePdu(truncated),
+        throwsA(anyOf(isA<RangeError>(), isA<FormatException>())),
+      );
     });
   });
 }

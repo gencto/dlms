@@ -37,7 +37,8 @@ class Crc16 {
   static bool verify(Uint8List frame) {
     if (frame.length < 2) return false;
     final data = frame.sublist(0, frame.length - 2);
-    final receivedCrc = (frame[frame.length - 1] << 8) | frame[frame.length - 2];
+    final receivedCrc =
+        (frame[frame.length - 1] << 8) | frame[frame.length - 2];
     return calculate(data) == receivedCrc;
   }
 }

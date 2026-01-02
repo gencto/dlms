@@ -30,9 +30,10 @@ abstract class CosemObject {
     final val = await readAttribute(1);
     // Usually returns OctetString (6 bytes) of the OBIS code.
     // We can convert back to OBIS string if needed.
-    if (val.type == 9) { // OctetString
-       final bytes = val.value as List<int>;
-       return ObisCode.fromBytes(bytes).toString();
+    if (val.type == 9) {
+      // OctetString
+      final bytes = val.value as List<int>;
+      return ObisCode.fromBytes(bytes).toString();
     }
     return val.value.toString();
   }
