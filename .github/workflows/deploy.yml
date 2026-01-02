@@ -2,9 +2,10 @@ name: CI/CD
 
 on:
   push:
-    branches: [ "**" ]
+    branches: [ "main" ]
+    tags: [ "v*" ]
   pull_request:
-    branches: [ "**" ]
+    branches: [ "main" ]
 
 permissions:
   contents: write
@@ -30,7 +31,8 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    # Only run deploy if it is a tag push
+    if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@v1
@@ -39,19 +41,5 @@ jobs:
       - name: Install dependencies
         run: dart pub get
       
-      - name: Check Pubspec Version
-        id: version
-        run: |
-          VERSION=$(grep 'version:' pubspec.yaml | cut -d ' ' -f 2)
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "Found version: $VERSION"
-
-      - name: Create Git Tag
-        uses: mathieudutour/github-tag-action@v6.1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          custom_tag: ${{ steps.version.outputs.VERSION }}
-          tag_prefix: "v"
-
       - name: Publish to Pub.dev
         run: dart pub publish --force
