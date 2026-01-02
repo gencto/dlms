@@ -8,6 +8,20 @@ issue_tracker: https://github.com/gencto/dlms/issues
 environment:
   sdk: ^3.10.4
 
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  windows:
+
+topics:
+  - dlms
+  - cosem
+  - smart-meter
+  - iot
+  - protocol
+
 dev_dependencies:
   lints: ^3.0.0
   test: ^1.25.0
