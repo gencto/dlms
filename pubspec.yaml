@@ -1,6 +1,7 @@
 name: dlms
 description: A pure Dart library for the DLMS/COSEM smart metering protocol. Supports TCP/HDLC transport, Secure Authentication (HLS), and object-oriented interface classes.
-version: 1.0.0
+version: 1.0.1
+license: MIT
 homepage: https://github.com/gencto/dlms
 repository: https://github.com/gencto/dlms
 issue_tracker: https://github.com/gencto/dlms/issues
